@@ -12,6 +12,7 @@ const cookieParser = require('cookie-parser')
 const app = express()
 const http = require('http').Server(app)
 const sessionStore = new session.MemoryStore()
+const passportSocketIo = require('passport.socketio')
 
 const io = require('socket.io')(http)
 
@@ -48,11 +49,21 @@ mongo.connect(
 
         http.listen(process.env.PORT || 3000)
 
+        // socketio authentication
+        io.use(
+            passportSocketIo.authorize({
+                cookieParser: cookieParser,
+                key: 'express.sid',
+                secret: process.env.SESSION_SECRET,
+                store: sessionStore,
+            })
+        )
+
         //start socket.io code
         let currentUsers = 0
 
         io.on('connection', socket => {
-                console.log('A user has connected')
+            console.log('A user has connected')
             currentUsers++
             io.emit('user count', currentUsers)
 
@@ -61,6 +72,8 @@ mongo.connect(
                 currentUsers--
                 io.emit('user count', currentUsers)
             })
+
+            console.log('user ' + socket.request.user.name + ' connected')
         })
 
         //end socket.io code
