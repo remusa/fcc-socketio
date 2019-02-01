@@ -64,6 +64,7 @@ mongo.connect(
 
         io.on('connection', socket => {
             console.log('A user has connected')
+            console.log('user ' + socket.request.user.name + ' connected')
             currentUsers++
             io.emit('user', currentUsers)
 
@@ -84,7 +85,13 @@ mongo.connect(
                 })
             })
 
-            console.log('user ' + socket.request.user.name + ' connected')
+            socket.on('chat message', message => {
+                console.log('Message sent')
+                io.emit('chat message', {
+                    name: socket.request.user.name,
+                    message: message,
+                })
+            })
         })
 
         //end socket.io code

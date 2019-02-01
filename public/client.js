@@ -6,11 +6,13 @@ $(document).ready(function() {
     $('form').submit(function() {
         const messageToSend = $('#m').val()
         //send message to server here?
+        socket.emit('chat message', messageToSend)
+
         $('#m').val('')
         return false // prevent form submit from refreshing page
     })
 
-    socket.on('user count', function(data) {
+    socket.on('user count', data => {
         console.log(data)
     })
 
@@ -23,5 +25,9 @@ $(document).ready(function() {
             message += ' has left the chat.'
         }
         $('#messages').append($('<li>').html('<b>' + message + '</b>'))
+    })
+
+    socket.on('chat message', data => {
+        $('#messages').append($('<li>').text(data.name + ': ' + data.message))
     })
 })
